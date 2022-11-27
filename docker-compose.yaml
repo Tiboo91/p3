@@ -1,0 +1,59 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'p3db'
+      MYSQL_USER: 'tiboo91'
+      MYSQL_PASSWORD: 'projet3-de'
+      MYSQL_RANDOM_ROOT_PASSWORD : true
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - db_mysql:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 55
+    networks:
+      - transferts-api
+  upl:
+    image: tiboo91/bulkscript:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'p3db'
+      MYSQL_USER: 'tiboo91'
+      MYSQL_PASSWORD: 'projet3-de'
+      DB_HOST: 'db'
+    depends on:
+      db:
+        condition: service_healthy
+    networks:
+      - transferts-api
+  api:
+    image: tiboo91/api:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'p3db'
+      MYSQL_USER: 'tiboo91'
+      MYSQL_PASSWORD: 'projet3-de'
+      DB_HOST: 'db'
+    ports:
+      - '8000:8000'
+    expose:
+      - '8000'
+    depends_on:
+      - db:
+      - upl:
+          condition: service_completed_successfully
+    networks:
+      - transferts-api
+volumes:
+  db_mysql:
+networks:
+  transferts-api:

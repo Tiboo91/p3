@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 services:
   db:
     image: mysql:latest
@@ -7,7 +7,7 @@ services:
       MYSQL_DATABASE: 'p3db'
       MYSQL_USER: 'tiboo91'
       MYSQL_PASSWORD: 'projet3-de'
-      MYSQL_RANDOM_ROOT_PASSWORD : true
+      MYSQL_ROOT_PASSWORD : "password"
     ports:
       - '3306:3306'
     expose:
@@ -24,13 +24,12 @@ services:
       - transferts-api
   upl:
     image: tiboo91/bulkscript:latest
-    restart: always
     environment:
       MYSQL_DATABASE: 'p3db'
       MYSQL_USER: 'tiboo91'
       MYSQL_PASSWORD: 'projet3-de'
       DB_HOST: 'db'
-    depends on:
+    depends_on:
       db:
         condition: service_healthy
     networks:
@@ -48,11 +47,13 @@ services:
     expose:
       - '8000'
     depends_on:
-      - db:
-      - upl:
-          condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      upl:
+        condition: service_completed_successfully
     networks:
       - transferts-api
+  
 volumes:
   db_mysql:
 networks:

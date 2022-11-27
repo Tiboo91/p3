@@ -8,8 +8,11 @@ user = os.getenv('MYSQL_USER')
 password = os.getenv('MYSQL_PASSWORD')
 host = os.getenv('DB_HOST')
 # connection à la base de données 
-
-connection = connect(host=host,user=user,password=password,database=database)
+try:
+    connection = connect(host=host,user=user,password=password,database=database)
+    print(connection)
+except Error as e:
+    print(e)
 
 ## créer la table si pas créée
 create_transferts_table = """
@@ -27,9 +30,12 @@ create_transferts_table = """
     CONSTRAINT unicity UNIQUE (name,age,teamFrom,teamTo,Season)
     )
     """
-with connection.cursor() as cursor:
-        cursor.execute(create_transferts_table)
-        connection.commit()
+try :
+    with connection.cursor() as cursor:
+            cursor.execute(create_transferts_table)
+            connection.commit()
+except Error as e : 
+    print(e)
 
 # check if table is there and propperly populated
 populate = False
@@ -37,9 +43,10 @@ contenu_table = "select count(*) from transferts"
 with connection.cursor() as cursor:
      cursor.execute(contenu_table)
      result = cursor.fetchone()
+     print(result)
      if result[0] ==0:
         populate=True
-
+print(populate)
 if populate:
     # insert data if not populated 
     insert_transferts = """
@@ -47,7 +54,7 @@ if populate:
     (name,position,age,teamFrom,leagueFrom, teamTo , leagueTo,Season ,Market_value,transferFee)
     VALUES ( %s, %s,%s,%s,%s,%s,%s,%s,%s,%s )
     """ 
-    transferts_records = list(pd.read_csv("top250-00-19.csv",sep=",",encoding='utf-8').itertuples(index=False,name=None))
+    transferts_records = list(pd.read_csv("top250-00-19.csv",sep=",",encoding='utf-8').fillna(value=0).itertuples(index=False,name=None))
     with connection.cursor() as cursor:
         cursor.executemany(insert_transferts, transferts_records)
         connection.commit()

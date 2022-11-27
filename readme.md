@@ -1,4 +1,4 @@
-# API pour requeter et ajouter des entrée à une base de données
+# API pour requeter et ajouter des entrées à une base de données
 
 ## justification des choix : 
 Le set de donné choisi est: https://www.kaggle.com/vardan95ghazaryan/top-250-football-transfers-from-2000-to-2018.  

@@ -71,7 +71,7 @@ app = FastAPI()
 
 
 @app.post("/addTransfert")
-async def get_data(Transfert : transfert):
+async def post_transfert(Transfert : transfert):
   t_dict = Transfert.dict()
   connection = connect(host=host,user=user,password=password,database=database)
 
